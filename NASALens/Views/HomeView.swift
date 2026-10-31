@@ -20,12 +20,17 @@ struct HomeView: View{
         return formatter
     }
     
+    
+    
     var body: some View{
         NavigationStack{
             ZStack{
                 Color.black.ignoresSafeArea()
                 
                 VStack{
+                    Text("NASALens")
+                        .font(.title)
+                        
                     
                     switch apodViewModel.state{
                     case .loading:
@@ -38,6 +43,12 @@ struct HomeView: View{
                         ScrollView{
                             
                             ForEach(apods, id:\.date ){apod in
+                                var filteredText: String{
+                                    apodViewModel.cleanHTML(html: apod.explanation ?? "")
+                                        .replacingOccurrences(of: "Explanation:", with: "")
+                                }
+                                
+                                
                                 Divider()
                                     .frame(height: 1.2)
                                     .background(.white)
@@ -67,10 +78,14 @@ struct HomeView: View{
                                             Text(apod.title)
                                                 .padding(4)
                                                 .font(.headline)
+                                            Text(filteredText)
+                                                .lineLimit(2)
+                                                .opacity(0.8)
+                                                
                                             Text("\(Image(systemName: "calendar")) \(apod.date)")
                                                 .padding(4)
                                                 .font(.subheadline)
-                                                .foregroundStyle(.white).opacity(0.7)
+                                                .opacity(0.7)
                                         }
                                         
                                         Image(systemName: "chevron.right")

@@ -27,6 +27,7 @@ struct APODDetailView: View{
                                 .frame(width:350,height: 350)
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                                 .backgroundStyle(.thinMaterial)
+                                .padding()
                             
                         }else if phase.error != nil{
                             Color.red
@@ -46,6 +47,7 @@ struct APODDetailView: View{
                 }
             }
             .foregroundStyle(.white)
+            
         }
     }
     
