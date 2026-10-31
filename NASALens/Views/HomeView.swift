@@ -36,38 +36,51 @@ struct HomeView: View{
                     case .loaded(let apods):
                         
                         ScrollView{
-                            NavigationLink("Найти по дате"){
-                                ContentView()
-                            }
-                            .font(.headline)
                             
                             ForEach(apods, id:\.date ){apod in
                                 Divider()
                                     .frame(height: 1.2)
                                     .background(.white)
-                                Text(apod.title)
-                                    .padding(4)
-                                
-                                NavigationLink{
-                                    APODDetailView(apod: apod)
+                                HStack{
                                     
-                                }label:{
-                                    AsyncImage(url: apod.hdurl){phase in
+                                    NavigationLink{
+                                        APODDetailView(apod: apod)
                                         
-                                        if let image = phase.image{
-                                            image
-                                                .resizable()
-                                                .scaledToFit()
-                                                .padding(4)
+                                    }label:{
+                                        AsyncImage(url: apod.hdurl){phase in
                                             
+                                            if let image = phase.image{
+                                                image
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .padding(4)
+                                                    .clipShape(RoundedRectangle(cornerRadius: 28))
+                                                
+                                            }
+                                            else if phase.error != nil{
+                                                Color.red
+                                            }else{
+                                                ProgressView()
+                                            }
                                         }
-                                        else if phase.error != nil{
-                                            Color.red
-                                        }else{
-                                            ProgressView()
+                                        LazyVStack{
+                                            Text(apod.title)
+                                                .padding(4)
+                                                .font(.headline)
+                                            Text("\(Image(systemName: "calendar")) \(apod.date)")
+                                                .padding(4)
+                                                .font(.subheadline)
+                                                .foregroundStyle(.white).opacity(0.7)
                                         }
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .padding(16)
+   
                                     }
                                 }
+                                .background(Color(uiColor: .systemBackground).opacity(0.08))
+                                .cornerRadius(24)
+                                
                                 
                             }
                         }
@@ -79,6 +92,7 @@ struct HomeView: View{
                         
                         
                     }
+                    
                     
                 }
                 .task {
@@ -94,5 +108,5 @@ struct HomeView: View{
 
 
 #Preview {
-    HomeView()
+    RootView()
 }

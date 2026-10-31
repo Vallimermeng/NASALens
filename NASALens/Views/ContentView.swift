@@ -15,7 +15,7 @@ struct ContentView: View {
     @State private var showDetail = false
     @State var selectedDate = Date()
     @State private var selectedAPOD: APOD?
-
+    
     
     var body: some View {
         NavigationStack{
