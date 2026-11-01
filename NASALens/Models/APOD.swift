@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct APOD: Codable{
+struct APOD: Codable, Equatable{
     let date: String
     let title: String
     let url: URL

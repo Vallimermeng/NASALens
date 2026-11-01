@@ -18,7 +18,6 @@ struct RootView: View{
                 ContentView()
             }
             
-            
         }
     }
 }

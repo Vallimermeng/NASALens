@@ -11,15 +11,21 @@ struct HomeView: View{
     @State var apodViewModel = APODViewModel()
     
     let currentDate = Date()
-    var thirtyOneDaysAgo: Date{
+    var sevenDaysAgo: Date{
         Calendar.current.date(byAdding: .day, value: -31, to: currentDate) ?? currentDate
     }//get 31 previous days
+    
     var formatter:DateFormatter{
         let formatter = DateFormatter()
         formatter.dateFormat = "yyMMdd"
         return formatter
     }
     
+    var apodDateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }
     
     
     var body: some View{
@@ -31,29 +37,21 @@ struct HomeView: View{
                     Text("NASALens")
                         .font(.title)
                         
-                    
                     switch apodViewModel.state{
                     case .loading:
                         ProgressView("Загрузка")
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             .foregroundStyle(.white)
                         
-                    case .loaded(let apods):
-                        
+                    case .loaded:
                         ScrollView{
-                            
-                            ForEach(apods, id:\.date ){apod in
-                                var filteredText: String{
-                                    apodViewModel.cleanHTML(html: apod.explanation ?? "")
-                                        .replacingOccurrences(of: "Explanation:", with: "")
-                                }
-                                
+                            ForEach(apodViewModel.apods, id:\.date ){apod in
                                 
                                 Divider()
                                     .frame(height: 1.2)
                                     .background(.white)
+                                
                                 HStack{
-                                    
                                     NavigationLink{
                                         APODDetailView(apod: apod)
                                         
@@ -78,7 +76,7 @@ struct HomeView: View{
                                             Text(apod.title)
                                                 .padding(4)
                                                 .font(.headline)
-                                            Text(filteredText)
+                                            Text(apodViewModel.filteredText(html: apod.explanation))
                                                 .lineLimit(2)
                                                 .opacity(0.8)
                                                 
@@ -86,6 +84,8 @@ struct HomeView: View{
                                                 .padding(4)
                                                 .font(.subheadline)
                                                 .opacity(0.7)
+                                            
+                                            
                                         }
                                         
                                         Image(systemName: "chevron.right")
@@ -95,12 +95,22 @@ struct HomeView: View{
                                 }
                                 .background(Color(uiColor: .systemBackground).opacity(0.08))
                                 .cornerRadius(24)
-                                
+//                                TODO: optimize this shit
+//                                .onAppear{
+//                                    if apod.date == apodViewModel.apods.last?.date{
+//                                        print(apod.date)
+//                                        if let lastDate = apodDateFormatter.date(from:apod.date){
+//                                            Task{
+//                                                await apodViewModel.loadNextPage(lastDate: formatter.string(from: apodViewModel.NdaysAgo(currentDate: lastDate)), currentDate: formatter.string(from: currentDate))
+//                                            }
+//                                        }else{
+//                                            print("ошибка")
+//                                        }
+//                                    }
+//                                }
                                 
                             }
                         }
-                        
-                        
                         
                     case .error(let error):
                         Text("Произошла ошибка: \(error)")
@@ -111,7 +121,7 @@ struct HomeView: View{
                     
                 }
                 .task {
-                    await apodViewModel.loadRangeAPOD(from: formatter.string(from: thirtyOneDaysAgo), to: formatter.string(from: currentDate))
+                    await apodViewModel.loadRangeAPOD(from: formatter.string(from: sevenDaysAgo), to: formatter.string(from: currentDate))
                 }
                 
             }

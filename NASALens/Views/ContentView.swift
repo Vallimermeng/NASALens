@@ -37,8 +37,8 @@ struct ContentView: View {
                             await apodViewModel.loadAPOD(date: formatter.string(from: selectedDate)
                             )
                             
-                            if case .loaded(let apods) = apodViewModel.state{
-                                selectedAPOD = apods.first
+                            if case .loaded = apodViewModel.state{
+                                selectedAPOD = apodViewModel.apods.first
                                 showDetail = true
                                 isTapped = false
                                 
@@ -53,11 +53,8 @@ struct ContentView: View {
                         if(isTapped){
                             ProgressView("Загрузка")
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        }
-                        
+                        }   
                     }
-                    
-                    
                 }
                     
                 .foregroundStyle(.white)

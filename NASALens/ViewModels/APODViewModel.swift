@@ -12,11 +12,14 @@ import Observation
 class APODViewModel{
     enum LoadingState{
         case loading
-        case loaded([APOD])
+        case loaded
         case error(String)
     }
+    var apods: [APOD] = []
     let service = NASAService()
     var state:LoadingState = .loading
+    var isLoadingMore: Bool = false
+    var lastAPODDate: String = ""
     
     
     
@@ -24,7 +27,8 @@ class APODViewModel{
         state = .loading
         do{
             let apod = try await service.getAPOD(date: date)
-            state = .loaded(apod)
+            apods.append(contentsOf: apod)
+            state = .loaded
         }catch{
             state = .error("\(error)")
             print(state)
@@ -35,11 +39,39 @@ class APODViewModel{
         state = .loading
         do{
             let apodRange = try await service.getAPODRange(from: from, to: to)
-            state = .loaded(apodRange)
+            apods.append(contentsOf: apodRange)
+            state = .loaded
         }catch{
             state = .error("\(error)")
             print(state)
         }
+    }
+    
+    func loadNextPage(lastDate: String, currentDate: String) async{
+        guard !isLoadingMore else { return }
+        isLoadingMore = true
+        defer { isLoadingMore = false }
+        
+        
+        if(lastDate != lastAPODDate){
+            do{
+                let nextPages = try await service.getAPODRange(from: lastDate, to: lastAPODDate)
+                lastAPODDate = lastDate
+                state = .loaded
+                let existingDates = Set(apods.map(\.date))
+                let uniqueAPODs = nextPages.filter { !existingDates.contains($0.date) }
+                apods.append(contentsOf: uniqueAPODs)
+            }catch{
+                state = .error("\(error)")
+                print(state)
+            }
+        }else{
+            return
+        }
+    }
+    
+    func NdaysAgo(currentDate: Date) -> Date{
+        Calendar.current.date(byAdding: .day, value: -7, to: currentDate) ?? currentDate
     }
     
     
@@ -56,6 +88,11 @@ class APODViewModel{
         )
 
         return result
+    }
+    
+    func filteredText(html: String?) -> String{
+        cleanHTML(html: html ?? "")
+            .replacingOccurrences(of: "Explanation:", with: "")
     }
     
 }
