@@ -57,10 +57,10 @@ class APODViewModel{
             do{
                 let nextPages = try await service.getAPODRange(from: lastDate, to: lastAPODDate)
                 lastAPODDate = lastDate
-                state = .loaded
                 let existingDates = Set(apods.map(\.date))
                 let uniqueAPODs = nextPages.filter { !existingDates.contains($0.date) }
                 apods.append(contentsOf: uniqueAPODs)
+                state = .loaded
             }catch{
                 state = .error("\(error)")
                 print(state)
